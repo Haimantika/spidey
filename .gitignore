@@ -7,3 +7,5 @@ release/
 test-results/
 .DS_Store
 *.tsbuildinfo
+
+.tools/

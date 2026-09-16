@@ -13,7 +13,8 @@
     "check": "npm run test && npm run build",
     "package": "npm run build && electron-builder --dir",
     "postinstall": "node node_modules/electron/install.js",
-    "test:desktop": "node tests/desktop-smoke.mjs"
+    "test:desktop": "node tests/desktop-smoke.mjs",
+    "setup:conversation": "node scripts/install-tunnel.mjs"
   },
   "build": {
     "appId": "com.mochi.desktop",
@@ -24,11 +25,20 @@
       "package.json"
     ],
     "mac": {
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Spider-Man listens while you choose to talk, so Agora can respond and create reminders."
+      }
     },
     "directories": {
       "output": "release"
-    }
+    },
+    "extraResources": [
+      {
+        "from": ".tools/cloudflared",
+        "to": "cloudflared"
+      }
+    ]
   },
   "dependencies": {
     "agora-agents": "^2.8.1",

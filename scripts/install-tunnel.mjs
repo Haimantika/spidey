@@ -1,0 +1,17 @@
+import {mkdir,writeFile,chmod} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+const asset=process.platform==='darwin'?`cloudflared-darwin-${process.arch==='arm64'?'arm64':'amd64'}.tgz`:process.platform==='linux'?`cloudflared-linux-${process.arch==='arm64'?'arm64':'amd64'}`:'cloudflared-windows-amd64.exe';
+const response=await fetch('https://api.github.com/repos/cloudflare/cloudflared/releases/latest');
+if(!response.ok)throw new Error(`Cloudflare release lookup failed (${response.status}).`);
+const release=await response.json(), entry=release.assets.find(a=>a.name===asset);
+if(!entry?.digest?.startsWith('sha256:'))throw new Error('No verified Cloudflare binary is available for this platform.');
+const download=await fetch(entry.browser_download_url);
+if(!download.ok)throw new Error('Cloudflare binary download failed.');
+const bytes=Buffer.from(await download.arrayBuffer());
+if(`sha256:${createHash('sha256').update(bytes).digest('hex')}`!==entry.digest)throw new Error('Cloudflare binary checksum mismatch.');
+await mkdir('.tools',{recursive:true});await writeFile(`.tools/${asset}`,bytes);
+if(asset.endsWith('.tgz'))execFileSync('tar',['-xzf',`.tools/${asset}`,'-C','.tools']);
+else await writeFile(`.tools/cloudflared${process.platform==='win32'?'.exe':''}`,bytes);
+await chmod(`.tools/cloudflared${process.platform==='win32'?'.exe':''}`,0o755);
+console.log(`Installed verified cloudflared ${release.tag_name}.`);

@@ -1,28 +1,28 @@
-import { useId } from 'react';
-import type { PetName } from './types';
-export function Pet({variant='mochi',speaking=false,sleeping=false,small=false}:{variant?:PetName;speaking?:boolean;sleeping?:boolean;small?:boolean}) {
+import {useId} from 'react';
+import type {PetName} from './types';
+export function Pet({speaking=false,sleeping=false,small=false}:{variant?:PetName;speaking?:boolean;sleeping?:boolean;small?:boolean}){
  const id=useId().replace(/:/g,'');
- const colors={mochi:['#d7f1b0','#9bca82','#537951'],peach:['#ffe0be','#f6aa94','#b57868'],cloud:['#e6dffc','#b9afe3','#7f75a5']}[variant];
- return <svg className={`pet-art ${speaking?'speaking':''} ${sleeping?'sleeping':''} ${small?'small':''}`} viewBox="0 0 320 310" role="img" aria-label={`${variant}, a cute ${sleeping?'sleeping':'smiling'} little companion`}>
-  <defs><radialGradient id={`${id}-body`} cx="38%" cy="28%" r="75%"><stop offset="0%" stopColor={colors[0]}/><stop offset="100%" stopColor={colors[1]}/></radialGradient><linearGradient id={`${id}-ear`} x2="0" y2="1"><stop stopColor={colors[0]}/><stop offset="1" stopColor={colors[1]}/></linearGradient><filter id={`${id}-shadow`}><feGaussianBlur stdDeviation="5"/></filter></defs>
-  <ellipse className="pet-shadow" cx="160" cy="278" rx="83" ry="10" fill="#3f5749" opacity=".13" filter={`url(#${id}-shadow)`}/>
-  <g className="pet-body">
-   <path d="M86 132C64 120 60 56 80 43C104 29 127 91 122 120" fill={`url(#${id}-ear)`} stroke={colors[2]} strokeOpacity=".12" strokeWidth="2"/>
-   <path d="M198 119C193 83 218 24 238 40C256 54 251 112 231 135" fill={`url(#${id}-ear)`} stroke={colors[2]} strokeOpacity=".12" strokeWidth="2"/>
-   <path d="M86 59Q76 77 92 112" fill="none" stroke="white" strokeWidth="9" opacity=".38" strokeLinecap="round"/>
-   <path d="M234 58Q240 80 223 108" fill="none" stroke="white" strokeWidth="9" opacity=".3" strokeLinecap="round"/>
-   <ellipse cx="106" cy="258" rx="27" ry="16" fill={colors[1]}/><ellipse cx="213" cy="258" rx="27" ry="16" fill={colors[1]}/>
-   <path d="M62 183C59 123 98 93 155 94C215 91 252 126 257 187C263 241 228 266 160 267C92 269 58 241 62 183Z" fill={`url(#${id}-body)`} stroke={colors[2]} strokeOpacity=".15" strokeWidth="2"/>
-   <path d="M88 134Q114 107 146 112" fill="none" stroke="white" strokeWidth="10" opacity=".32" strokeLinecap="round"/>
-   <ellipse cx="160" cy="228" rx="47" ry="28" fill="#fffdf0" opacity=".27"/>
-   <path className="pet-arm left" d="M69 190Q36 170 49 205Q55 218 71 218" fill={colors[1]} stroke={colors[2]} strokeWidth="2" strokeOpacity=".12"/>
-   <path className="pet-arm right" d="M249 189Q281 167 272 201Q268 216 252 217" fill={colors[1]} stroke={colors[2]} strokeWidth="2" strokeOpacity=".12"/>
-   <g className="pet-face">
-    {sleeping?<><path d="M111 174q9 9 18 0M191 174q9 9 18 0" fill="none" stroke="#34493a" strokeWidth="5" strokeLinecap="round"/></>:<g className="pet-eyes"><ellipse cx="121" cy="171" rx="7" ry="10" fill="#34493a"/><ellipse cx="199" cy="171" rx="7" ry="10" fill="#34493a"/><circle cx="123" cy="167" r="2" fill="white"/><circle cx="201" cy="167" r="2" fill="white"/></g>}
-    <ellipse cx="102" cy="192" rx="15" ry="8" fill="#ee9d94" opacity=".65"/><ellipse cx="216" cy="192" rx="15" ry="8" fill="#ee9d94" opacity=".65"/>
-    {speaking?<ellipse className="pet-mouth" cx="160" cy="190" rx="9" ry="10" fill="#526447"/>:<path d="M148 187q5 9 12 1q7 8 12-1" fill="none" stroke="#34493a" strokeWidth="3.5" strokeLinecap="round"/>}
-   </g>
-   <g transform="translate(146 220)"><path d="M0 0Q13-12 17 0Q26-10 30-3Q27 10 16 12Q6 10 0 0" fill="#658653"/><path d="M16 11V19" stroke="#658653" strokeWidth="3" strokeLinecap="round"/></g>
-  </g>
- </svg>;
+ return <svg className={`spider-art ${speaking?'speaking':''} ${sleeping?'sleeping':''} ${small?'small':''}`} viewBox="0 0 240 310" role="img" aria-label={`Spider-Man hanging upside down from a web${speaking?', speaking':''}`}>
+ <defs><linearGradient id={`${id}red`} x2=".9" y2="1"><stop stopColor="#f46359"/><stop offset=".55" stopColor="#d52f3c"/><stop offset="1" stopColor="#9b2039"/></linearGradient><linearGradient id={`${id}blue`} x2="1" y2="1"><stop stopColor="#416886"/><stop offset="1" stopColor="#182b48"/></linearGradient><clipPath id={`${id}mask`}><path d="M68 187C66 153 86 139 120 139S174 155 172 187L168 215C164 249 142 269 120 269S76 249 72 215Z"/></clipPath></defs>
+ <g className="spider-swing">
+ <path className="web-thread" d="M120-65V73" fill="none" stroke="#dfe5ee" strokeWidth="2.5"/>
+ <path d="M120-65V73" fill="none" stroke="white" strokeWidth=".7"/>
+ <g className="spider-figure">
+ <path d="M119 91C111 87 83 95 81 111L83 151L101 159L109 113L120 113L131 115L141 159L159 151L159 110C156 97 132 86 119 91" fill={`url(#${id}blue)`} stroke="#20364b" strokeWidth="3"/>
+ <path d="M94 102L88 82Q92 63 108 66L120 78L132 66Q148 63 152 82L146 102L129 94L120 91L111 94Z" fill={`url(#${id}red)`} stroke="#652a3a" strokeWidth="2.5"/>
+ <path d="M116 70L116 91M124 70L124 91M92 80L108 85M133 85L149 80" stroke="#6b2a3c" strokeWidth="1.5" fill="none"/>
+ <path d="M84 122C71 116 62 123 62 137L57 166L75 172L84 148" fill={`url(#${id}red)`} stroke="#722c3a" strokeWidth="2"/>
+ <path d="M156 122C169 116 178 123 178 137L183 166L165 172L156 148" fill={`url(#${id}red)`} stroke="#722c3a" strokeWidth="2"/>
+ <path d="M83 120Q120 134 157 120L153 163Q120 177 87 163Z" fill={`url(#${id}red)`} stroke="#6c293c" strokeWidth="2.5"/>
+ <path d="M105 146L96 137M105 151L94 148M106 156L96 163M135 146L144 137M135 151L146 148M134 156L144 163" stroke="#253346" strokeWidth="3" fill="none" strokeLinecap="round"/>
+ <ellipse cx="120" cy="150" rx="7" ry="10" fill="#243246"/><path d="M113 147L105 146M113 151L105 151M114 155L106 156M127 147L135 146M127 151L135 151M126 155L134 156" stroke="#243246" strokeWidth="3"/>
+ <path d="M68 187C66 153 86 139 120 139S174 155 172 187L168 215C164 249 142 269 120 269S76 249 72 215Z" fill={`url(#${id}red)`} stroke="#79293d" strokeWidth="3"/>
+ <g clipPath={`url(#${id}mask)`} fill="none" stroke="#752b3c" strokeWidth="1.5" opacity=".65">
+ <path d="M120 229V131M120 229L77 135M120 229L56 169M120 229L52 215M120 229L77 275M120 229V280M120 229L166 275M120 229L190 215M120 229L189 169M120 229L164 135"/>
+ <path d="M67 163Q91 184 120 167Q147 184 174 163M63 187Q92 207 120 193Q148 207 177 187M64 213Q94 226 120 215Q146 226 178 213M76 245Q96 238 120 249Q144 238 165 245"/>
+ </g>
+ <g className="spider-eyes" fill="#fcfcf4" stroke="#27303e" strokeWidth="5" strokeLinejoin="round"><path d="M82 184Q99 188 111 207Q96 221 83 211Q78 199 82 184Z"/><path d="M158 184Q141 188 129 207Q144 221 157 211Q162 199 158 184Z"/></g>
+ <path d="M84 165Q95 151 110 150" fill="none" stroke="#ffb9a8" opacity=".4" strokeWidth="4" strokeLinecap="round"/>
+ <path d="M57 160Q50 171 55 182Q68 189 77 177L75 162M183 160Q190 171 185 182Q172 189 163 177L165 162" fill={`url(#${id}red)`} stroke="#752b3c" strokeWidth="2.5"/>
+ </g></g></svg>;
 }

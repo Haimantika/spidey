@@ -8,14 +8,15 @@ function emitNudge(value:Nudge){nudgeListeners.forEach(fn=>fn(value));previewCha
 let memory:AppState;
 try { memory=validateState(JSON.parse(localStorage.getItem('mochi-state') || 'null')); } catch { memory=defaultState() as AppState; }
 const save = async (value:AppState) => { memory=validateState(value); localStorage.setItem('mochi-state',JSON.stringify(memory)); stateListeners.forEach(fn=>fn(memory)); return memory; };
-const preview = async (kind:string) => { const r={id:'preview',kind,title:'You’re doing great. Take a tiny break.'}; emitNudge({...r,message:messageFor(r)}); };
+const preview = async (kind:string) => { const r={id:'preview',kind,title:'You’re doing great. Take a tiny break.'}; emitNudge({...r,message:messageFor(r,memory.language)}); };
 const desktopOnly = async ():Promise<never> => { throw new Error('Open the desktop app to connect Agora voice.'); };
 export const bridge:Bridge = window.mochi || {
  getState:async()=>memory, saveState:save,
  onState:fn=>{stateListeners.add(fn);return()=>{stateListeners.delete(fn);};},
  onNudge:fn=>{nudgeListeners.add(fn);return()=>{nudgeListeners.delete(fn);};},
- preview, showPet:async()=>{window.open(`${location.pathname}?pet=1`,'mochi-pet','width=360,height=420');},openDashboard:async()=>{location.search='';},
+ preview, showPet:async()=>{window.open(`${location.pathname}?pet=1`,'mochi-pet','width=640,height=410');},openDashboard:async()=>{location.search='';},
+ voiceHistory:async()=>[],voiceThink:desktopOnly,toggleConversation:desktopOnly,onConversationCommand:()=>()=>{},onTaskAction:()=>()=>{},setClickThrough:async()=>{},quit:async()=>{},
  voiceStatus:async()=>({configured:false,missing:['Desktop app required']}), voicePrepare:desktopOnly, voiceStart:desktopOnly,voiceSpeak:desktopOnly,voiceStop:async()=>{},reportVoice:()=>{},onVoice:()=>()=>{},
 };
 if(!window.mochi)window.addEventListener('storage',event=>{if(event.key==='mochi-state'&&event.newValue){try{memory=validateState(JSON.parse(event.newValue));stateListeners.forEach(fn=>fn(memory));}catch{/* Ignore invalid preview data. */}}});
-if (!window.mochi&&!new URLSearchParams(location.search).has('pet')) setInterval(()=>{ const result=tick(memory); if(result.due.length){void save(result.state); for(const r of result.due) emitNudge({...r,message:messageFor(r)});} },1000);
+if (!window.mochi&&!new URLSearchParams(location.search).has('pet')) setInterval(()=>{ const result=tick(memory); if(result.due.length){void save(result.state); for(const r of result.due) emitNudge({...r,message:messageFor(r,memory.language)});} },1000);

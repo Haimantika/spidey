@@ -1,92 +1,96 @@
-# Mochi 🌱
+# Spidey — your friendly neighborhood desktop companion
 
-A little desktop friend for a gentler workday. Mochi lives in a transparent, draggable, always-on-top window and gently reminds you to drink water, move, rest your eyes, and finish pending tasks. Its spoken reminders are delivered through **Agora Conversational AI and Agora RTC**.
+Spider-Man lowers from the top-center notch on a web, chats in **English or Hindi**, and remembers tasks you ask for. Agora handles speech recognition, conversation, tool calling, and spoken replies.
 
 ## Run
 
-Requires Node.js 22.12+ and npm. Developed and desktop-tested on macOS.
-
 ```sh
 npm install
+npm run setup:conversation
 npm run desktop
 ```
 
-The dashboard and floating pet open together. Closing the dashboard keeps the pet and reminders running. Use the **🌱 menu bar → Quit Mochi** to fully quit. Drag the pet itself to move it. Hover above it for dashboard and mute controls.
+The conversation helper downloads Cloudflare’s official `cloudflared` binary and verifies its published SHA-256 checksum. It is already installed in this workspace. Node.js 22.12+ is required.
 
-For a browser-only visual preview:
+Configure your existing `.env`:
 
-```sh
-npm run dev
+```dotenv
+AGORA_APP_ID=your_project_app_id
+AGORA_APP_CERTIFICATE=your_project_app_certificate
+AGORA_PIPELINE_ID=
+AGORA_AREA=us
 ```
 
-The browser preview has local reminders and tasks while the page is open. True desktop overlay, OS notifications, background scheduling, and Agora voice require the desktop app.
+Enable Conversational AI and managed-model access in your Agora project. Keep the certificate private. **Fully quit and restart the app after changing `.env`.**
 
-## Connect Agora voice
+## Talk to Spider-Man
 
-1. Create a project in the [Agora Console](https://console.agora.io/). Enable **Conversational AI**, confirm the project is eligible for managed models, and enable an App Certificate.
-2. Copy the template locally:
+1. Click **Talk** below Spider-Man, or **Talk to Spider-Man** in the dashboard.
+2. Allow microphone access when macOS asks.
+3. Choose **English** or **हिन्दी** in the bubble or Voice & settings. Changing language ends the current conversation; tap Talk again.
+4. Speak naturally:
+   - “Remind me to call Amma in ten minutes.”
+   - “What tasks do I have?”
+   - “Mark the call to Amma as done.”
+   - “Snooze that task for fifteen minutes.”
+   - “मुझे दस मिनट में पानी पीने की याद दिलाना।”
+5. A **Saved** receipt appears only when the task has actually been saved. If you omit the time, the agent should ask when.
+6. Click **End chat** to close the microphone immediately. You can also type during a conversation.
 
-   ```sh
-   cp .env.example .env
-   ```
+Conversations can be interrupted by speaking. The agent uses Agora-managed Deepgram Nova 3, OpenAI GPT-4o mini, and MiniMax Speech 2.6 Turbo. Hindi uses multilingual recognition for Hindi/English code-switching and a Hindi conversation prompt. Reminder text is localized too. No separate provider keys are required for this configuration.
 
-3. Fill `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE` in `.env`. Keep the certificate private. Restart Mochi after changing configuration.
-4. Open **Voice & settings → Say hello with Agora**. Mochi connects to a short-lived RTC channel and speaks. A missing credential or connection error is displayed in the app.
+The optional `AGORA_PIPELINE_ID` is used only for English reminder-only playback. Interactive conversations use the app’s own configuration so task tools and language settings are always included.
 
-The default agent uses Agora-managed Deepgram Nova 3, OpenAI GPT-4o mini, and MiniMax Speech 2.6 Turbo. Managed-model access and usage are governed by your Agora account; no separate vendor keys are configured in this default path. This is not browser speech synthesis.
+## Tasks and reminders
 
-### Optional: use your own Agent Studio voice
+- Voice-created tasks and manually added tasks use the same persistent scheduler.
+- A pending task repeats every 30 minutes until completed.
+- Water, walking, and eye-break intervals are editable.
+- Five-minute snooze, one-hour pause, speaker mute, and volume controls remain available.
+- Sleep recovery emits one catch-up reminder per overdue item.
+- Reminders keep running with the dashboard closed, while the app is running.
+- Quit using the **power button below Spider-Man** or **🌱 menu bar → Quit Spidey**. The existing application name and storage location remain Mochi so previous tasks migrate automatically.
 
-Publish a **cascade** agent in [Agora Agent Studio](https://console.agora.io/studio/) and put its ID in `AGORA_PIPELINE_ID`. Configure its TTS voice, disable its opening greeting, and disable automatic silence/filler announcements. This uses your published pipeline instead of the default models. Do **not** use an MLLM/realtime speech-to-speech pipeline: Agora’s `/speak` endpoint requires the TTS module.
+## How task creation works
 
-`AGORA_AREA` accepts `us` (default), `eu`, or `ap` for API routing. It does not by itself guarantee data residency.
+Agora’s LLM calls a narrowly scoped `manage_tasks` REST tool. A session-specific bearer token authenticates each call. The local Electron process validates task names, reminder times, and task IDs, saves the result atomically, and returns the actual result to Agora before it confirms the action.
 
-### What is sent to Agora?
+During a conversation, the app creates a temporary Cloudflare Quick Tunnel to an ephemeral loopback server exposing **only** the authenticated `/tasks` endpoint. It does not serve files or credentials. Task arguments and tool results travel through Cloudflare and Agora. Duplicate tool-call IDs do not create duplicate tasks. The endpoint and tunnel close when the session ends. Quick Tunnels are intended for personal development, have no availability guarantee, and should be replaced with a managed authenticated backend for production distribution.
 
-Only a triggered reminder’s text is sent to the agent. The app does not request microphone permission or publish microphone audio. The renderer receives the App ID and a short-lived, channel-scoped RTC token; the App Certificate stays in the local Electron main process. Local reminders and task titles are stored in `reminders.json` under Electron’s user-data directory.
+The microphone is off until you start a conversation and is closed on End chat, disconnect, language changes, or session timeout. Sessions end after 15 minutes; Agora can end an idle session earlier. Conversation captions are held in memory, not written to the task file. Agora and its model providers process the voice and conversation data.
 
-A voice session starts on demand, plays audio through RTC, and stops after speech becomes quiet. It also has idle and hard cleanup timers. Voice errors leave the visual reminder available. While offline, text nudges and native notifications continue to work while the app is running.
+The certificate remains in Electron’s main process. Tasks and settings are stored locally in Electron’s user-data directory. Existing Mochi settings migrate to Spider-Man without losing tasks. `.env` is not packaged.
 
-## Features
-
-- Three animated companions: mint **Mochi**, peach **Peaches**, lavender **Nimbus**.
-- Water, movement, and eye-break reminders with editable 1–1440 minute intervals.
-- Tasks with an initial reminder time, then 30-minute repeat nudges until completed.
-- Five-minute snooze, one-hour pause, mute, and volume controls.
-- Local persistence and recent reminder history.
-- One catch-up nudge per due item after sleep, without replaying missed intervals.
-- Transparent floating pet, native notifications, and a menu-bar shortcut.
-- Speaking animation driven by the real remote audio volume.
-- Reduced-motion support and keyboard-accessible controls.
-
-## Verification
-
-```sh
-npm run check          # Scheduler and Agora integration unit tests, TypeScript, production build
-npm run test:desktop   # launches Electron with an isolated temporary profile; no live Agora calls
-```
-
-Desktop tests cover both windows, persistence across reload, task completion, interval editing, missing-credential feedback, scheduled delivery, snoozing, pause, and live pet appearance synchronization. Screenshots are saved to `docs/screenshots/`.
-
-Live Agora agent creation and desktop speech reception were verified on September 16, 2026 using locally configured credentials. The isolated desktop check observed Connecting → Voice connected → Speaking → Voice ready. Automated tests also verify generated requests, token generation, lifecycle cleanup after failed starts, redacted diagnostics, and payload limits.
-
-If voice fails, fully quit Mochi and restart with `npm run desktop`. The app now displays the API status and a redacted error reason. Optional diagnostics: `node tests/diagnose-voice.mjs` checks a real start/stop; `node tests/diagnose-desktop-voice.mjs` plays one real spoken reminder in an isolated desktop profile. Both use your local `.env` and consume Agora service usage.
-
-## Package locally
+## Test and build
 
 ```sh
+npm run check
+npm run test:desktop
 npm run package
 ```
 
-This produces an unpacked app in `release/`; it is not a signed or notarized release. Packaged apps read `.env` from their Electron user-data directory (typically `~/Library/Application Support/Mochi/` on macOS; development usually uses `mochi-desktop-pet/`). `.env` is excluded from packaging. For distributing an app with your own shared Agora credentials, move the voice service to an authenticated backend instead of shipping a certificate.
+Automated checks cover scheduler behavior, migration, English/Hindi configuration, Agora tool execution flags, callback authentication, idempotency, invalid dates, completion, snoozing, safe errors, and lifecycle cleanup. Desktop checks use an isolated temporary profile and verify actual notch placement, reminders, persistence, language synchronization, and transparency.
 
-## Implementation
+Optional **live** tests use your configured Agora credentials and consume service usage:
 
-- `src/App.tsx`, `src/Pet.tsx`, `src/styles.css`: React dashboard, original animated SVG pet, floating UI.
-- `electron/main.mjs`: windows, tray, notifications, persistence, validated IPC.
-- `electron/reminders.mjs`: pure reminder state and scheduling.
-- `electron/voice.mjs`: Agora agent lifecycle and token generation.
-- `src/voice.ts`: Agora RTC subscription and playback; no microphone.
-- [Agora research and architecture](docs/AGORA.md).
+```sh
+node tests/live-conversation.mjs
+node tests/live-conversation.mjs --hindi
+node tests/live-desktop-conversation.mjs
+```
 
-Reminders require Mochi to be running. OS notification permissions and Focus settings may affect notification banners. Pending work is entered manually; external calendar/task integrations and voice commands are not implemented.
+The first two test the real Agora LLM → authenticated callback → scheduled task path with an isolated in-memory task list. The desktop test injects the included synthetic speech fixture into a Web Audio stream (hardware capture is blocked in the test), verifies ASR → task creation, and checks that End chat stops all input tracks. They never write to your actual tasks.
+
+`npm run package` creates an unsigned macOS app under `release/mac-arm64/Mochi.app`, including the installed conversation helper. Packaged apps read `.env` from their user-data directory; `npm run desktop` reads the project’s `.env`.
+
+## Troubleshooting
+
+- **Opus / G722 BUNDLE codec collision:** restart the updated build. A scoped audio SDP compatibility adapter aligns known bundled Opus parameters and removes misplaced Opus attributes from fallback audio codecs. Regression checks inspect native Electron warnings as well as API errors.
+- **Connected but no conversation:** after Talk, expect a spoken greeting. Use the microphone dropdown in the pet bubble (for example, choose Insta360 instead of the built-in microphone when using an external setup). The input meter should move when you speak; “Heard” shows Agora’s recognized words. If the meter stays flat, check the selected device and its mute switch. You can also type a request with a time to check task creation independently of microphone input.
+- **Microphone denied:** enable the app in System Settings → Privacy & Security → Microphone, then restart.
+- **Conversation helper missing:** run `npm run setup:conversation`.
+- **Task connection failed:** check Internet/firewall access to Cloudflare and Agora, end the session, and reconnect.
+- **Agora error:** the app displays a redacted API status and error reason. Verify Conversational AI and managed-model access for the configured project.
+- **Browser preview:** `npm run dev` previews the design and local task controls. Native notch placement, microphone conversations, and background reminders require `npm run desktop`.
+
+See [Agora research and architecture](docs/AGORA.md).
