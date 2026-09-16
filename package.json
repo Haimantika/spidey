@@ -1,0 +1,51 @@
+{
+  "name": "mochi-desktop-pet",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.mjs",
+  "description": "A gentle desktop companion with Agora-powered spoken reminders",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "desktop": "npm run build && node electron/launch.mjs",
+    "build": "tsc -b && vite build",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build",
+    "package": "npm run build && electron-builder --dir",
+    "postinstall": "node node_modules/electron/install.js",
+    "test:desktop": "node tests/desktop-smoke.mjs"
+  },
+  "build": {
+    "appId": "com.mochi.desktop",
+    "productName": "Mochi",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "directories": {
+      "output": "release"
+    }
+  },
+  "dependencies": {
+    "agora-agents": "^2.8.1",
+    "agora-rtc-sdk-ng": "^4.24.8",
+    "dotenv": "^17.4.2",
+    "lucide-react": "^1.46.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "electron": "^44.4.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}
