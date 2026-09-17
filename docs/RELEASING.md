@@ -2,7 +2,7 @@
 
 ## Current distribution status
 
-The project builds a local, unsigned **Mochi.app**. [Version 0.1.0 is published](https://github.com/Haimantika/talking-pet/releases/tag/v0.1.0) in the private repository, with the ZIP, checksum, and install guide attached. Downloads require repository access. No public release URL, signing credentials, notarization workflow, or automatic updater is configured here. The current verified artifact is for **Apple Silicon macOS**. Uploading source code alone does not give users a ready-to-run app.
+The project builds a local, unsigned **Mochi.app**. [Version 0.1.0 is published](https://github.com/Haimantika/talking-pet/releases/tag/v0.1.0) publicly, with the ZIP, checksum, and install guide attached. Downloads do not require a GitHub account. Signing credentials, a notarization workflow, and an automatic updater are not configured here. The current verified artifact is for **Apple Silicon macOS**. Uploading source code alone does not give users a ready-to-run app.
 
 For now, distribute this as a developer preview where each tester supplies their own Agora credentials. For a consumer release without credential setup, first move service credentials and agent/session authorization to a backend with user authentication and usage controls. Do not embed your App Certificate in the download. Replace the development Quick Tunnel dependency with a supported production callback design before promising production availability.
 

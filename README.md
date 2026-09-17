@@ -4,7 +4,7 @@ Spider-Man lowers from the top-center notch on a web, chats in **English or Hind
 
 ## Download and install
 
-The current build is a **macOS Apple Silicon developer preview** (macOS 13+). The packaged app is named **Mochi.app**. [Download Spidey 0.1.0 for Apple Silicon](https://github.com/Haimantika/talking-pet/releases/download/v0.1.0/Spidey-0.1.0-mac-arm64.zip). The repository is private: sign in to GitHub with an account that has repository access.
+The current build is a **macOS Apple Silicon developer preview** (macOS 13+). The packaged app is named **Mochi.app**. [Download Spidey 0.1.0 for Apple Silicon](https://github.com/Haimantika/talking-pet/releases/download/v0.1.0/Spidey-0.1.0-mac-arm64.zip). The download is public; no GitHub account is required.
 
 - **Users:** follow [Download and installation instructions](docs/INSTALL.md). No Node.js is needed for the packaged app; voice currently requires your own Agora credentials.
 - **Maintainer:** follow [Build and publish a downloadable release](docs/RELEASING.md) to create the app ZIP and share it.

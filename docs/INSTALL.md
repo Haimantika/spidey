@@ -10,7 +10,7 @@ You do **not** need Node.js, npm, or the source code to use the packaged app. Vo
 
 ## 1. Get the download
 
-[Download Spidey-0.1.0-mac-arm64.zip](https://github.com/Haimantika/talking-pet/releases/download/v0.1.0/Spidey-0.1.0-mac-arm64.zip), or visit the [release page](https://github.com/Haimantika/talking-pet/releases/tag/v0.1.0). This repository is private: you must sign in to GitHub with an account that has repository access. If you see a 404, ask the maintainer for access or a shared copy.
+[Download Spidey-0.1.0-mac-arm64.zip](https://github.com/Haimantika/talking-pet/releases/download/v0.1.0/Spidey-0.1.0-mac-arm64.zip), or visit the [release page](https://github.com/Haimantika/talking-pet/releases/tag/v0.1.0). The download is public and does not require a GitHub account.
 
 Choose the app ZIP from the release's assets, **not** GitHub's “Source code (zip)” download. The latter contains development files, not an installed app.
 
