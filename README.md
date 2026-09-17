@@ -94,3 +94,7 @@ The first two test the real Agora LLM → authenticated callback → scheduled t
 - **Browser preview:** `npm run dev` previews the design and local task controls. Native notch placement, microphone conversations, and background reminders require `npm run desktop`.
 
 See [Agora research and architecture](docs/AGORA.md).
+
+### Adjust the web
+
+Drag Spider-Man or the web up and down. The banner and controls move with him, and the length is remembered after restart. The web stops before the controls leave the display. You can also focus the web and use Up/Down (20 pixels), Home (shortest), or End (longest).

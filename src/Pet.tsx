@@ -10,7 +10,7 @@ export function Pet({speaking=false,sleeping=false,small=false}:{variant?:PetNam
  <clipPath id={`${id}mask`}><path d="M73 205C70 174 88 159 119 159C151 159 170 177 167 207C165 240 146 264 120 267C94 264 76 240 73 205Z"/></clipPath>
  </defs>
  <g className="spider-swing" stroke="#55283e" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round">
- <path d="M120-70V72" fill="none" stroke="#d7e5f4" strokeWidth="3"/><path d="M119-70V72" stroke="white" strokeWidth=".8"/>
+ <path className="pet-web-thread" d="M120-70V72" fill="none" stroke="#d7e5f4" strokeWidth="3"/><path className="pet-web-thread" d="M119-70V72" stroke="white" strokeWidth=".8"/>
  <g className="spider-figure">
  {/* Bent legs and crossed boots gripping the hanging web. */}
  <path d="M102 134C88 125 80 105 87 85L106 79L120 112L134 79L153 86C160 107 149 126 138 135Z" fill={blue}/>

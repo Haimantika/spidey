@@ -1,7 +1,7 @@
 export type PetName = 'spiderman' | 'mochi' | 'peach' | 'cloud';
 export type Reminder = {id:string; title:string; kind:'water'|'walk'|'eyes'; minutes:number; enabled:boolean; nextAt:number};
 export type Task = {id:string; title:string; done:boolean; nextAt:number};
-export type AppState = {pet:PetName; language:'en'|'hi'; voiceEnabled:boolean; volume:number; pausedUntil:number; reminders:Reminder[]; tasks:Task[]; history:{id:string;title:string;at:number}[]};
+export type AppState = {webDrop?:number;pet:PetName; language:'en'|'hi'; voiceEnabled:boolean; volume:number; pausedUntil:number; reminders:Reminder[]; tasks:Task[]; history:{id:string;title:string;at:number}[]};
 export type Nudge = {id:string; title:string; kind:string; message:string};
 export type VoiceStatus = {configured:boolean; missing:string[]};
 export type Bridge = {

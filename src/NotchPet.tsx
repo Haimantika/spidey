@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useRef,useState,type PointerEvent as ReactPointerEvent,type CSSProperties} from 'react';
 import {Mic,MicOff,Settings2,X,Check,Send,Power,Volume2,VolumeX} from 'lucide-react';
 import {Pet} from './Pet';
 import {bridge} from './bridge';
@@ -9,6 +9,19 @@ export function NotchPet({state,nudge,speaking,setSpeaking,dismiss,done,snooze,p
  const active=['listening','speaking'].includes(conversation.phase),connecting=conversation.phase==='connecting';
  const [bannerOpen,setBannerOpen]=useState(true);
  useEffect(()=>{if(nudge||active||connecting)setBannerOpen(true);},[nudge,active,connecting]);
+ const [drop,setDrop]=useState(state.webDrop||0),[dragging,setDragging]=useState(false),[maxDrop,setMaxDrop]=useState(Math.max(0,window.innerHeight-390));
+ const drag=useRef<{pointer:number;y:number;start:number;value:number}|null>(null);
+ useEffect(()=>{if(!drag.current)setDrop(Math.min(state.webDrop||0,maxDrop));},[state.webDrop,maxDrop]);
+ useEffect(()=>{const resize=()=>setMaxDrop(Math.max(0,window.innerHeight-390));window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);},[]);
+ const clamp=(value:number)=>Math.round(Math.max(0,Math.min(maxDrop,value)));
+ function beginPull(event:ReactPointerEvent<HTMLElement>){
+  if(event.button!==0)return;event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId);
+  drag.current={pointer:event.pointerId,y:event.clientY,start:drop,value:drop};setDragging(true);void bridge.setClickThrough(false);
+ }
+ function pull(event:ReactPointerEvent<HTMLElement>){const current=drag.current;if(!current||current.pointer!==event.pointerId)return;current.value=clamp(current.start+event.clientY-current.y);setDrop(current.value);}
+ function finishPull(event:ReactPointerEvent<HTMLElement>){const current=drag.current;if(!current||current.pointer!==event.pointerId)return;drag.current=null;setDragging(false);if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);void patch({webDrop:current.value});}
+ function cancelPull(){if(!drag.current)return;setDrop(drag.current.start);drag.current=null;setDragging(false);}
+ const pullEvents={onPointerDown:beginPull,onPointerMove:pull,onPointerUp:finishPull,onPointerCancel:cancelPull,onLostPointerCapture:cancelPull};
  const previousLanguage=useRef(state.language);
  useEffect(()=>{
   let unsubscribe=()=>{};let disposed=false;
@@ -17,7 +30,7 @@ export function NotchPet({state,nudge,speaking,setSpeaking,dismiss,done,snooze,p
   const offVoice=bridge.onVoice(message=>{if(/task connection|callback|helper stopped/i.test(message))setReceipt(message);});
   const actions=bridge.onTaskAction(result=>setReceipt(result.action==='added'?`Saved: ${result.task?.title} · ${new Date(result.task!.nextAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:result.action==='complete'?`Completed: ${result.task?.title}`:`Snoozed: ${result.task?.title}`));
   let ignored=false;
-  const move=(event:MouseEvent)=>{const target=document.elementFromPoint(event.clientX,event.clientY);const ignore=!target?.closest('.notch-interactive');if(ignore!==ignored){ignored=ignore;void bridge.setClickThrough(ignore);}};
+  const move=(event:MouseEvent)=>{const target=document.elementFromPoint(event.clientX,event.clientY);const ignore=!drag.current&&!target?.closest('.notch-interactive');if(ignore!==ignored){ignored=ignore;void bridge.setClickThrough(ignore);}};
   document.addEventListener('mousemove',move);
   return()=>{disposed=true;unsubscribe();off();offVoice();actions();document.removeEventListener('mousemove',move);};
  },[]);
@@ -26,7 +39,7 @@ export function NotchPet({state,nudge,speaking,setSpeaking,dismiss,done,snooze,p
  async function toggle(){setReceipt('');const m=await import('./voice');await m.toggleConversation(setSpeaking);}
  const heard=conversation.transcript.filter(t=>t.role==='user').at(-1)?.content;
  const latest=conversation.transcript.filter(t=>t.role==='assistant').at(-1)?.content;
- return <div className="notch-pet"><div className="notch-cap"/><div className="notch-descent"><div className="hanging-hero notch-interactive" onDoubleClick={()=>void toggle()}><Pet speaking={speaking}/></div><button className="banner-handle notch-interactive" aria-label={bannerOpen?'Roll up banner':'Open banner'} aria-expanded={bannerOpen} onClick={()=>setBannerOpen(!bannerOpen)}/>
+ return <div className={`notch-pet ${dragging?'pulling-web':''}`} style={{'--web-drop':`${drop}px`} as CSSProperties}><div className="notch-cap"/><div className="adjustable-web notch-interactive" {...pullEvents} role="slider" tabIndex={0} aria-label="Web length" aria-valuemin={0} aria-valuemax={maxDrop} aria-valuenow={drop} aria-orientation="vertical" title="Drag the web or Spider-Man up and down" onKeyDown={event=>{let next=drop;if(event.key==='ArrowDown')next=clamp(drop+20);else if(event.key==='ArrowUp')next=clamp(drop-20);else if(event.key==='Home')next=0;else if(event.key==='End')next=maxDrop;else return;event.preventDefault();setDrop(next);void patch({webDrop:next});}}/><div className="notch-descent"><div className="hanging-hero notch-interactive" {...pullEvents} title="Drag me up or down to adjust my web" onDoubleClick={()=>void toggle()}><Pet speaking={speaking}/></div><button className="banner-handle notch-interactive" aria-label={bannerOpen?'Roll up banner':'Open banner'} aria-expanded={bannerOpen} onClick={()=>setBannerOpen(!bannerOpen)}/>
 
  <div inert={!bannerOpen} className={`notch-bubble hand-banner notch-interactive ${bannerOpen?'banner-open':'banner-closed'} ${active?'conversation-open':''}`}><div className="notch-bubble-heading"><span className={`mic-dot ${active?'live':''}`}/><strong>{active?'YOUR FRIENDLY NEIGHBORHOOD LISTENER':nudge?'A FRIENDLY REMINDER':'YOUR FRIENDLY NEIGHBORHOOD SPIDER-MAN'}</strong>{nudge&&<button aria-label="Dismiss reminder" onClick={dismiss}><X size={14}/></button>}</div>
  {nudge?<><p className="notch-message">{nudge.message}</p><div className="notch-actions"><button onClick={done}>Done <Check size={12}/></button><button onClick={snooze}>In 5 minutes</button></div></>:<><p className="notch-message">{latest&&active?latest:connecting?'Getting our conversation ready…':active?(state.language==='hi'?'मैं सुन रहा हूँ। आपको क्या याद दिलाऊँ?':'I’m listening. What should I remind you about?'):state.language==='hi'?'आपके काम, मेरे ज़िम्मे। बात करें?':'Your to-dos. My spider-sense. Want to talk?'}</p>{!active&&!connecting&&<span className="notch-example">{state.language==='hi'?'“दस मिनट में पानी पीने की याद दिलाना।”':'“Remind me to drink water in ten minutes.”'}</span>}</>}
